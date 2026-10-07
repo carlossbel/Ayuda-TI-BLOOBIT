@@ -180,7 +180,7 @@ input:focus, select:focus, textarea:focus {
   overflow-y: auto;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.28);
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06)), rgba(40, 56, 76, 0.55);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03)), rgba(38, 52, 70, 0.88);
   backdrop-filter: blur(28px) saturate(160%);
   -webkit-backdrop-filter: blur(28px) saturate(160%);
   box-shadow: 0 18px 50px rgba(8, 16, 28, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
@@ -561,8 +561,8 @@ select option, select optgroup { background: #2a3a4d; color: var(--ink); }
   max-height: calc(100vh - 40px);
   display: flex;
   flex-direction: column;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05)),
-    rgba(40, 56, 76, 0.35);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03)),
+    rgba(38, 52, 70, 0.82);
   border-color: rgba(255, 255, 255, 0.28);
   backdrop-filter: blur(30px) saturate(160%);
   -webkit-backdrop-filter: blur(30px) saturate(160%);
