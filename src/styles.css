@@ -478,8 +478,8 @@ select option, select optgroup { background: #2a3a4d; color: var(--ink); }
   position: fixed;
   inset: 0;
   z-index: 50;
-  background: rgba(12, 20, 30, 0.55);
-  backdrop-filter: blur(6px);
+  /* Sin backdrop-filter aquí: si el fondo desenfoca, el modal ya no puede desenfocar la página detrás. */
+  background: rgba(12, 20, 30, 0.3);
   display: grid;
   place-items: center;
   padding: 20px 16px;
@@ -492,7 +492,12 @@ select option, select optgroup { background: #2a3a4d; color: var(--ink); }
   max-height: calc(100vh - 40px);
   display: flex;
   flex-direction: column;
-  background: rgba(46, 62, 82, 0.72);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05)),
+    rgba(40, 56, 76, 0.35);
+  border-color: rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(30px) saturate(160%);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
+  box-shadow: 0 24px 70px rgba(8, 16, 28, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.25);
   animation: rise 0.25s ease-out;
 }
 .modal-head {
@@ -584,13 +589,22 @@ select option, select optgroup { background: #2a3a4d; color: var(--ink); }
   position: fixed;
   inset: 0;
   z-index: 60;
-  background: rgba(8, 12, 18, 0.88);
+  background: rgba(20, 30, 42, 0.35);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
   display: grid;
   place-items: center;
   padding: 24px;
   cursor: zoom-out;
+  animation: fade 0.2s;
 }
-.lightbox img { max-width: 100%; max-height: 100%; border-radius: 12px; }
+.lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 20px 60px rgba(8, 16, 28, 0.6);
+}
 
 /* Responsivo */
 @media (max-width: 1000px) {
