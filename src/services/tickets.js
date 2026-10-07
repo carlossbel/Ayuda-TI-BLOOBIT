@@ -15,6 +15,7 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 import { db } from '../firebase';
+import { notify } from './notifications';
 
 const byNumberDesc = (a, b) => (b.number || 0) - (a.number || 0);
 const mapDocs = (snap) => snap.docs.map((d) => ({ id: d.id, ...d.data() })).sort(byNumberDesc);
@@ -87,6 +88,7 @@ export async function createTicket({ user, subject, category, priority, descript
       }),
     ),
   );
+  notify('new', number);
   return number;
 }
 
@@ -124,4 +126,5 @@ export async function updateTicketStatus(ticketId, status, note, adminName) {
   if (note) data.adminNote = note;
   if (status === 'resuelto') data.resolvedAt = serverTimestamp();
   await updateDoc(doc(db, 'tickets', String(ticketId)), data);
+  notify('status', ticketId);
 }

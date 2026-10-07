@@ -366,6 +366,34 @@ select option, select optgroup { background: #2a3a4d; color: var(--ink); }
 .page-head p { margin-top: 4px; }
 .panel { padding: 22px; }
 
+/* Aviso para activar notificaciones */
+.push-banner {
+  max-width: 1150px;
+  margin: 14px auto 0;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  animation: rise 0.35s ease-out;
+}
+.push-banner p { font-size: 0.86rem; margin-top: 2px; }
+.push-bell {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: rgba(143, 179, 217, 0.18);
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+.push-error { color: var(--danger); }
+@media (max-width: 480px) {
+  .push-banner { flex-wrap: wrap; }
+  .push-banner .grow { flex-basis: calc(100% - 110px); }
+  .push-banner .btn { order: 3; width: 100%; }
+}
+
 /* Dashboard */
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
 .stat { padding: 18px 20px; display: flex; flex-direction: column; gap: 6px; position: relative; overflow: hidden; }

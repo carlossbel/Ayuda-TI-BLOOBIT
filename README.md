@@ -37,3 +37,16 @@ npm run dev
 | Ticket resuelto | 6 (visible 72 h en Estado y siempre en Finalizadas) |
 
 Los usuarios se editan en `src/data/users.js`.
+
+## Notificaciones push
+
+- A TI le llega un aviso por cada ticket nuevo; al usuario, cada vez que cambia el estatus de su ticket.
+- Cada persona toca **Activar** en el aviso del portal y acepta el permiso del navegador (una vez por teléfono).
+- Envío: función `api/notify.js` en Vercel con Firebase Cloud Messaging. Solo funciona en Vercel, no con `npm run dev`.
+
+Variables necesarias en Vercel:
+
+| Variable | De dónde sale | Tipo |
+|---|---|---|
+| `VITE_FIREBASE_VAPID_KEY` | Firebase → Configuración del proyecto → Cloud Messaging → Certificados push web → Generar par de claves | Config |
+| `FIREBASE_SERVICE_ACCOUNT` | Firebase → Configuración del proyecto → Cuentas de servicio → Generar nueva clave privada (pegar el JSON completo) | Secret |

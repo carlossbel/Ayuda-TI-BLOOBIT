@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, signInAnonymously, signOut } from 'firebase/auth';
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { auth, db, firebaseReady } from '../firebase';
+import { unlinkPush } from '../services/notifications';
 
 const AuthContext = createContext(null);
 const SESSION_KEY = 'tickets-ti.session';
@@ -57,6 +58,7 @@ export function AuthProvider({ children }) {
   }
 
   async function logout() {
+    await unlinkPush();
     localStorage.removeItem(SESSION_KEY);
     setUser(null);
     if (auth) await signOut(auth);

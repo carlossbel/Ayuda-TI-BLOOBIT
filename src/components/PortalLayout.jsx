@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { TicketsProvider, useTickets } from '../context/TicketsContext';
 import { initials } from '../data/users';
 import { isFinished } from '../data/status';
+import PushBanner from './PushBanner';
 import { IconCheck, IconClock, IconDashboard, IconLogout, IconPlus, IconShield, IconTicket } from './Icons';
 
 function Sidebar() {
@@ -69,6 +70,7 @@ export default function PortalLayout() {
       <div className="portal">
         <Sidebar />
         <main className="portal-main">
+          <PushBanner />
           <Outlet />
         </main>
       </div>
