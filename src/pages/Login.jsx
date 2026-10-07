@@ -4,6 +4,11 @@ import { useAuth } from '../context/AuthContext';
 import { firebaseReady } from '../firebase';
 import { DEPARTMENTS, USERS } from '../data/users';
 import { IconTicket } from '../components/Icons';
+import GlassSelect from '../components/GlassSelect';
+
+const USER_OPTIONS = DEPARTMENTS.flatMap((dep) =>
+  USERS.filter((u) => u.department === dep).map((u) => ({ value: u.id, label: u.name, group: dep })),
+);
 
 export default function Login() {
   const { login } = useAuth();
@@ -48,19 +53,15 @@ export default function Login() {
           <div className="alert">Falta configurar Firebase: llena el archivo <code>.env</code> y reinicia el servidor.</div>
         )}
 
-        <label className="field">
+        <div className="field">
           <span>Usuario</span>
-          <select value={userId} onChange={(e) => { setUserId(e.target.value); setPin(''); setError(''); }}>
-            <option value="">Selecciona tu nombre…</option>
-            {DEPARTMENTS.map((dep) => (
-              <optgroup key={dep} label={dep}>
-                {USERS.filter((u) => u.department === dep).map((u) => (
-                  <option key={u.id} value={u.id}>{u.name}</option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
-        </label>
+          <GlassSelect
+            value={userId}
+            placeholder="Selecciona tu nombre…"
+            options={USER_OPTIONS}
+            onChange={(id) => { setUserId(id); setPin(''); setError(''); }}
+          />
+        </div>
 
         <label className="field">
           <span>Departamento</span>

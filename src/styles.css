@@ -143,6 +143,75 @@ input:focus, select:focus, textarea:focus {
   background: rgba(255, 255, 255, 0.13);
   box-shadow: 0 0 0 4px rgba(143, 179, 217, 0.2);
 }
+/* Select con efecto vidrio (GlassSelect) */
+.gselect {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  font: inherit;
+  color: var(--ink);
+  text-align: left;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.gselect span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gselect.is-empty span { color: var(--ink-mute); }
+.gselect svg { flex-shrink: 0; color: var(--ink-soft); transition: transform 0.2s; }
+.gselect.open svg { transform: rotate(180deg); }
+.gselect:hover { background: rgba(255, 255, 255, 0.12); }
+.gselect:focus-visible, .gselect.open {
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.13);
+  box-shadow: 0 0 0 4px rgba(143, 179, 217, 0.2);
+}
+.gselect-list {
+  position: fixed;
+  z-index: 100;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  overflow-y: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06)), rgba(40, 56, 76, 0.55);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  box-shadow: 0 18px 50px rgba(8, 16, 28, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  color: var(--ink);
+  animation: drop 0.15s ease-out;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+@keyframes drop { from { opacity: 0; transform: translateY(-4px); } }
+.gselect-group {
+  padding: 10px 10px 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-mute);
+}
+.gselect-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.93rem;
+}
+.gselect-option.active { background: rgba(255, 255, 255, 0.16); }
+.gselect-option.selected { font-weight: 700; }
+.gselect-option svg { color: var(--accent); flex-shrink: 0; }
+
 input[readonly] { color: var(--ink-soft); background: rgba(255, 255, 255, 0.04); }
 select option, select optgroup { background: #2a3a4d; color: var(--ink); }
 
@@ -471,7 +540,7 @@ select option, select optgroup { background: #2a3a4d; color: var(--ink); }
 
 .filters { display: flex; gap: 12px; padding: 14px; margin-bottom: 16px; flex-wrap: wrap; }
 .filters input { flex: 2; min-width: 200px; }
-.filters select { flex: 1; min-width: 160px; }
+.filters .filter-select { flex: 1; min-width: 160px; }
 
 /* Modal */
 .modal-backdrop {

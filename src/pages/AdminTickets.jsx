@@ -4,6 +4,14 @@ import { DEPARTMENTS } from '../data/users';
 import { STATUSES, STATUS_ORDER, fmtDate, folio } from '../data/status';
 import StatusPill from '../components/StatusPill';
 import TicketDetail from '../components/TicketDetail';
+import GlassSelect from '../components/GlassSelect';
+
+const STATUS_FILTERS = [
+  { value: 'abiertos', label: 'Abiertos' },
+  { value: 'todos', label: 'Todos' },
+  ...STATUS_ORDER.map((k) => ({ value: k, label: STATUSES[k].short })),
+];
+const DEPT_FILTERS = [{ value: '', label: 'Todos los departamentos' }, ...DEPARTMENTS.map((d) => ({ value: d, label: d }))];
 
 export default function AdminTickets() {
   const { allTickets, loading, error } = useTickets();
@@ -38,15 +46,12 @@ export default function AdminTickets() {
 
       <div className="filters glass">
         <input placeholder="Buscar por folio, asunto o persona…" value={q} onChange={(e) => setQ(e.target.value)} />
-        <select value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="abiertos">Abiertos</option>
-          <option value="todos">Todos</option>
-          {STATUS_ORDER.map((k) => <option key={k} value={k}>{STATUSES[k].short}</option>)}
-        </select>
-        <select value={dept} onChange={(e) => setDept(e.target.value)}>
-          <option value="">Todos los departamentos</option>
-          {DEPARTMENTS.map((d) => <option key={d}>{d}</option>)}
-        </select>
+        <div className="filter-select">
+          <GlassSelect value={status} options={STATUS_FILTERS} onChange={setStatus} />
+        </div>
+        <div className="filter-select">
+          <GlassSelect value={dept} options={DEPT_FILTERS} onChange={setDept} />
+        </div>
       </div>
 
       <div className="panel glass table-wrap">

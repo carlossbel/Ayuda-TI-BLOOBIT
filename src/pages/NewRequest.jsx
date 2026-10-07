@@ -4,6 +4,9 @@ import { useAuth } from '../context/AuthContext';
 import { CATEGORIES, PRIORITIES, folio } from '../data/status';
 import { createTicket } from '../services/tickets';
 import { IconImage, IconX } from '../components/Icons';
+import GlassSelect from '../components/GlassSelect';
+
+const toOptions = (list) => list.map((v) => ({ value: v, label: v }));
 
 const MAX_FILES = 4;
 const EMPTY = { subject: '', category: CATEGORIES[0], priority: 'Media', description: '' };
@@ -18,7 +21,8 @@ export default function NewRequest() {
   const [drag, setDrag] = useState(false);
   const inputRef = useRef(null);
 
-  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const setValue = (k) => (v) => setForm((f) => ({ ...f, [k]: v }));
+  const set = (k) => (e) => setValue(k)(e.target.value);
 
   function addFiles(list) {
     const imgs = [...list].filter((f) => f.type.startsWith('image/'));
@@ -114,18 +118,14 @@ export default function NewRequest() {
         </label>
 
         <div className="form-row">
-          <label className="field">
+          <div className="field">
             <span>Categoría</span>
-            <select value={form.category} onChange={set('category')}>
-              {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-            </select>
-          </label>
-          <label className="field">
+            <GlassSelect value={form.category} options={toOptions(CATEGORIES)} onChange={setValue('category')} />
+          </div>
+          <div className="field">
             <span>Prioridad</span>
-            <select value={form.priority} onChange={set('priority')}>
-              {PRIORITIES.map((p) => <option key={p}>{p}</option>)}
-            </select>
-          </label>
+            <GlassSelect value={form.priority} options={toOptions(PRIORITIES)} onChange={setValue('priority')} />
+          </div>
         </div>
 
         <label className="field">
