@@ -1,4 +1,4 @@
-export const DEPARTMENTS = ['Ventas', 'Administración', 'Marketing', 'Administración de Ventas', 'TI'];
+export const DEPARTMENTS = ['Ventas', 'Administración', 'Marketing', 'Administración de Ventas', 'Logística', 'TI'];
 
 export const USERS = [
   { id: 'laura-valle', name: 'Laura Valle', department: 'Ventas' },
@@ -11,6 +11,7 @@ export const USERS = [
   { id: 'barbara-perez', name: 'Barbara Perez', department: 'Administración de Ventas' },
   { id: 'cuauhtemoc-munoz', name: 'Cuauhtemoc Muñoz', department: 'Administración de Ventas' },
   { id: 'mario-crisanto', name: 'Mario Crisanto', department: 'Administración de Ventas' },
+  { id: 'miguel-rincon', name: 'Miguel Rincon', department: 'Logística' },
   { id: 'carlos-beltran', name: 'Carlos Beltran', department: 'TI', role: 'admin' },
 ];
 
