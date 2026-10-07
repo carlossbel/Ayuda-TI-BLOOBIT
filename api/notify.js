@@ -1,19 +1,26 @@
 // Función serverless de Vercel: envía notificaciones push con Firebase Cloud Messaging.
 // POST /api/notify { type: 'new' | 'status', ticketId }
 // Los destinatarios se deciden aquí con los datos del ticket, nunca los manda el navegador.
-import { cert, getApps, initializeApp } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
-import { getMessaging } from 'firebase-admin/messaging';
 import { STATUSES, folio } from '../src/data/status.js';
 import { USERS } from '../src/data/users.js';
 
 const DEAD_TOKEN_CODES = ['messaging/registration-token-not-registered', 'messaging/invalid-registration-token'];
 
-function initAdmin() {
+// firebase-admin se carga al primer uso: si algo falla, la respuesta dice qué fue en vez de tumbar la función.
+let admin;
+async function loadAdmin() {
+  if (admin) return admin;
+  const [{ cert, getApps, initializeApp }, { getAuth }, { getFirestore }, { getMessaging }] = await Promise.all([
+    import('firebase-admin/app'),
+    import('firebase-admin/auth'),
+    import('firebase-admin/firestore'),
+    import('firebase-admin/messaging'),
+  ]);
   if (!getApps().length) {
     initializeApp({ credential: cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)) });
   }
+  admin = { getAuth, getFirestore, getMessaging };
+  return admin;
 }
 
 function buildMessage(type, t) {
@@ -50,7 +57,13 @@ export default async function handler(req, res) {
   if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
     return res.status(500).json({ error: 'Falta la variable FIREBASE_SERVICE_ACCOUNT en Vercel' });
   }
-  initAdmin();
+  let getAuth, getFirestore, getMessaging;
+  try {
+    ({ getAuth, getFirestore, getMessaging } = await loadAdmin());
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: `No se pudo iniciar Firebase Admin: ${e.message}` });
+  }
 
   // Solo sesiones iniciadas desde la app pueden pedir envíos.
   const idToken = (req.headers.authorization || '').replace(/^Bearer /, '');
