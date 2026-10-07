@@ -14,7 +14,8 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [userId, setUserId] = useState('');
-  const [pin, setPin] = useState('');
+  const [password, setPassword] = useState('');
+  const [show, setShow] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -23,16 +24,15 @@ export default function Login() {
   async function submit(e) {
     e.preventDefault();
     if (!selected) return setError('Selecciona tu usuario');
+    if (!password) return setError('Escribe tu contraseña');
     setBusy(true);
     setError('');
     try {
-      await login(selected, pin);
+      await login(selected, password);
       navigate('/inicio');
     } catch (err) {
       console.error(err);
-      if (['auth/admin-restricted-operation', 'auth/operation-not-allowed', 'auth/configuration-not-found'].includes(err.code)) {
-        setError('Activa el proveedor "Anónimo" en Firebase > Authentication > Método de acceso');
-      } else if (err.code === 'permission-denied') {
+      if (err.code === 'permission-denied') {
         setError('Firestore rechazó el acceso: publica las reglas de firestore.rules');
       } else {
         setError(err.code ? `No se pudo conectar con Firebase (${err.code})` : err.message);
@@ -59,7 +59,7 @@ export default function Login() {
             value={userId}
             placeholder="Selecciona tu nombre…"
             options={USER_OPTIONS}
-            onChange={(id) => { setUserId(id); setPin(''); setError(''); }}
+            onChange={(id) => { setUserId(id); setPassword(''); setError(''); }}
           />
         </div>
 
@@ -68,12 +68,21 @@ export default function Login() {
           <input value={selected?.department || ''} placeholder="Se asigna automáticamente" readOnly />
         </label>
 
-        {selected?.role === 'admin' && (
-          <label className="field">
-            <span>PIN de administrador</span>
-            <input type="password" inputMode="numeric" value={pin} onChange={(e) => setPin(e.target.value)} autoFocus />
-          </label>
-        )}
+        <label className="field">
+          <span>Contraseña</span>
+          <div className="password-input">
+            <input
+              type={show ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); setError(''); }}
+              placeholder="Tu contraseña"
+              autoComplete="current-password"
+            />
+            <button type="button" className="password-toggle" onClick={() => setShow((v) => !v)}>
+              {show ? 'Ocultar' : 'Ver'}
+            </button>
+          </div>
+        </label>
 
         {error && <div className="alert">{error}</div>}
 

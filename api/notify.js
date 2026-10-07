@@ -3,25 +3,9 @@
 // Los destinatarios se deciden aquí con los datos del ticket, nunca los manda el navegador.
 import { STATUSES, folio } from '../src/data/status.js';
 import { USERS } from '../src/data/users.js';
+import { loadAdmin, verifyRequest } from './_lib/admin.js';
 
 const DEAD_TOKEN_CODES = ['messaging/registration-token-not-registered', 'messaging/invalid-registration-token'];
-
-// firebase-admin se carga al primer uso: si algo falla, la respuesta dice qué fue en vez de tumbar la función.
-let admin;
-async function loadAdmin() {
-  if (admin) return admin;
-  const [{ cert, getApps, initializeApp }, { getAuth }, { getFirestore }, { getMessaging }] = await Promise.all([
-    import('firebase-admin/app'),
-    import('firebase-admin/auth'),
-    import('firebase-admin/firestore'),
-    import('firebase-admin/messaging'),
-  ]);
-  if (!getApps().length) {
-    initializeApp({ credential: cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)) });
-  }
-  admin = { getAuth, getFirestore, getMessaging };
-  return admin;
-}
 
 function buildMessage(type, t) {
   if (type === 'new') {
@@ -54,40 +38,38 @@ function buildMessage(type, t) {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
-  if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
-    return res.status(500).json({ error: 'Falta la variable FIREBASE_SERVICE_ACCOUNT en Vercel' });
-  }
-  let getAuth, getFirestore, getMessaging;
+  let admin;
   try {
-    ({ getAuth, getFirestore, getMessaging } = await loadAdmin());
+    admin = await loadAdmin();
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: `No se pudo iniciar Firebase Admin: ${e.message}` });
   }
 
   // Solo sesiones iniciadas desde la app pueden pedir envíos.
-  const idToken = (req.headers.authorization || '').replace(/^Bearer /, '');
-  try {
-    await getAuth().verifyIdToken(idToken);
-  } catch {
-    return res.status(401).json({ error: 'No autorizado' });
-  }
+  const session = await verifyRequest(req, admin.auth);
+  if (!session) return res.status(401).json({ error: 'No autorizado' });
 
   const { type, ticketId } = req.body || {};
   if (!['new', 'status'].includes(type) || !/^\d+$/.test(String(ticketId))) {
     return res.status(400).json({ error: 'Solicitud inválida' });
   }
 
-  const db = getFirestore();
+  const db = admin.db;
   const snap = await db.doc(`tickets/${ticketId}`).get();
   if (!snap.exists) return res.status(404).json({ error: 'Ticket no encontrado' });
 
-  const { recipients, data } = buildMessage(type, snap.data());
+  // Ticket nuevo: solo quien lo creó. Cambio de estatus: solo el admin.
+  const ticket = snap.data();
+  const allowed = type === 'new' ? ticket.createdById === session.uid : session.role === 'admin';
+  if (!allowed) return res.status(403).json({ error: 'Sin permiso para este aviso' });
+
+  const { recipients, data } = buildMessage(type, ticket);
   const tokensSnap = await db.collection('pushTokens').where('userId', 'in', recipients).get();
   const tokens = tokensSnap.docs.map((d) => d.id);
   if (!tokens.length) return res.json({ sent: 0, reason: 'El destinatario no tiene notificaciones activadas' });
 
-  const result = await getMessaging().sendEachForMulticast({
+  const result = await admin.messaging.sendEachForMulticast({
     tokens,
     data,
     webpush: { headers: { Urgency: 'high', TTL: '86400' } },

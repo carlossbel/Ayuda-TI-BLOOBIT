@@ -1,9 +1,42 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Solo sesiones iniciadas desde la app (autenticación anónima de Firebase)
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+    // La sesión la entrega /api/login (token personalizado con uid = id del usuario y role).
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && request.auth.token.role == 'admin'; }
+    function isOwner(ticket) { return signedIn() && ticket.createdById == request.auth.uid; }
+
+    match /users/{userId} {
+      allow read: if signedIn();
+      allow write: if signedIn() && (request.auth.uid == userId || isAdmin());
     }
+
+    // Cada usuario ve solo sus tickets; el admin ve, actualiza y borra todos.
+    match /tickets/{ticketId} {
+      allow read: if isAdmin() || isOwner(resource.data);
+      allow create: if isOwner(request.resource.data);
+      allow update, delete: if isAdmin();
+
+      match /attachments/{attachmentId} {
+        allow read: if isAdmin() || isOwner(get(/databases/$(database)/documents/tickets/$(ticketId)).data);
+        allow create: if isOwner(get(/databases/$(database)/documents/tickets/$(ticketId)).data);
+        allow delete: if isAdmin();
+      }
+    }
+
+    // Consecutivo de folios.
+    match /meta/counters {
+      allow read, write: if signedIn();
+    }
+
+    // Teléfonos registrados para notificaciones push.
+    match /pushTokens/{token} {
+      allow create, update: if signedIn() && request.resource.data.userId == request.auth.uid;
+      allow delete: if signedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Contraseñas e intentos de acceso: solo el servidor (Firebase Admin) los toca.
+    match /credentials/{userId} { allow read, write: if false; }
+    match /loginAttempts/{userId} { allow read, write: if false; }
   }
 }

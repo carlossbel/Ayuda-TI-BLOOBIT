@@ -1,15 +1,18 @@
+import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { TicketsProvider, useTickets } from '../context/TicketsContext';
 import { initials } from '../data/users';
 import { isFinished } from '../data/status';
 import PushBanner from './PushBanner';
-import { IconCheck, IconClock, IconDashboard, IconLogout, IconPlus, IconShield, IconTicket } from './Icons';
+import PasswordModal from './PasswordModal';
+import { IconCheck, IconClock, IconDashboard, IconKey, IconLogout, IconPlus, IconShield, IconTicket } from './Icons';
 
 function Sidebar() {
   const { user, isAdmin, logout } = useAuth();
   const { myTickets, allTickets } = useTickets();
   const navigate = useNavigate();
+  const [changingPassword, setChangingPassword] = useState(false);
   const activeCount = myTickets.filter((t) => !isFinished(t)).length;
   const pendingAdmin = allTickets.filter((t) => !isFinished(t)).length;
 
@@ -49,6 +52,9 @@ function Sidebar() {
           <strong>{user.name}</strong>
           <small>{user.department}{isAdmin ? ' · Admin' : ''}</small>
         </div>
+        <button className="icon-btn" title="Cambiar contraseña" onClick={() => setChangingPassword(true)}>
+          <IconKey />
+        </button>
         <button
           className="icon-btn"
           title="Cerrar sesión"
@@ -60,6 +66,7 @@ function Sidebar() {
           <IconLogout />
         </button>
       </div>
+      {changingPassword && <PasswordModal onClose={() => setChangingPassword(false)} />}
     </aside>
   );
 }

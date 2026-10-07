@@ -366,6 +366,31 @@ select option, select optgroup { background: #2a3a4d; color: var(--ink); }
 .page-head p { margin-top: 4px; }
 .panel { padding: 22px; }
 
+/* Contraseña */
+.password-input { position: relative; }
+.password-input input { padding-right: 78px; }
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.password-toggle:hover { background: rgba(255, 255, 255, 0.18); color: var(--ink); }
+.modal-sm { max-width: 420px; }
+.modal-sm .modal-head { align-items: center; }
+.modal-sm .modal-head h2 { margin: 0; }
+.modal-sm .modal-body { padding-top: 18px; }
+.sidebar-user .icon-btn { width: 34px; height: 34px; }
+
 /* Aviso para activar notificaciones */
 .push-banner {
   max-width: 1150px;

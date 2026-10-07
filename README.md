@@ -50,3 +50,10 @@ Variables necesarias en Vercel:
 |---|---|---|
 | `VITE_FIREBASE_VAPID_KEY` | Firebase → Configuración del proyecto → Cloud Messaging → Certificados push web → Generar par de claves | Config |
 | `FIREBASE_SERVICE_ACCOUNT` | Firebase → Configuración del proyecto → Cuentas de servicio → Generar nueva clave privada (pegar el JSON completo) | Secret |
+
+## Contraseñas
+
+- Se verifican en `api/login.js` (Vercel) y se guardan cifradas con scrypt; nunca en el código ni en el navegador.
+- Contraseñas iniciales: variable `USER_PASSWORDS` (Secret) en Vercel. Cuando un usuario cambia la suya (botón 🔑 en el portal), queda en Firestore `credentials/{id}`, que solo lee el servidor.
+- 5 intentos fallidos bloquean al usuario 10 minutos.
+- Para agregar un usuario: agrégalo en `src/data/users.js` y su contraseña cifrada a `USER_PASSWORDS`.

@@ -1,6 +1,7 @@
 import { deleteDoc, doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { getMessaging, getToken, isSupported } from 'firebase/messaging';
-import { app, auth, db } from '../firebase';
+import { app, db } from '../firebase';
+import { postApi } from './api';
 
 const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY;
 const TOKEN_KEY = 'tickets-ti.pushToken';
@@ -79,13 +80,7 @@ export async function unlinkPush() {
 // Pide a la función de Vercel (api/notify) que envíe el aviso. Nunca bloquea al usuario si falla.
 export async function notify(type, ticketId) {
   try {
-    const idToken = await auth?.currentUser?.getIdToken();
-    if (!idToken) return;
-    await fetch('/api/notify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
-      body: JSON.stringify({ type, ticketId: String(ticketId) }),
-    });
+    await postApi('notify', { type, ticketId: String(ticketId) }, { withSession: true });
   } catch (e) {
     console.warn('No se pudo enviar la notificación', e);
   }

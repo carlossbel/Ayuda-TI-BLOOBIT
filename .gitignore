@@ -3,3 +3,4 @@ dist
 .env
 .claude
 qr-ayuda-ti.png
+USER_PASSWORDS-vercel.txt
