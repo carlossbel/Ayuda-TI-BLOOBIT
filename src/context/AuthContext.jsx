@@ -24,6 +24,28 @@ function clearSession() {
   }
 }
 
+// Solo se guarda el usuario y su departamento. Firestore puede tardar un instante en recibir la sesión
+// recién iniciada, así que se reintenta una vez; si aun así falla no se bloquea la entrada.
+async function recordLogin(session) {
+  const write = () =>
+    setDoc(
+      doc(db, 'users', session.id),
+      { name: session.name, department: session.department, role: session.role, lastLogin: serverTimestamp() },
+      { merge: true },
+    );
+  try {
+    await write();
+  } catch (e) {
+    if (e.code !== 'permission-denied') throw e;
+    await new Promise((r) => setTimeout(r, 800));
+    try {
+      await write();
+    } catch (retryError) {
+      console.warn('No se pudo registrar el último acceso', retryError);
+    }
+  }
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(readSession);
   const [authReady, setAuthReady] = useState(!firebaseReady);
@@ -47,15 +69,11 @@ export function AuthProvider({ children }) {
     if (!firebaseReady) throw new Error('Falta configurar Firebase en el archivo .env');
     clearSession();
     const { token, role } = await postApi('login', { userId: selected.id, password });
-    await signInWithCustomToken(auth, token);
+    const { user: fbUser } = await signInWithCustomToken(auth, token);
+    await fbUser.getIdToken();
 
     const session = { id: selected.id, name: selected.name, department: selected.department, role };
-    // Solo se guarda el usuario y su departamento.
-    await setDoc(
-      doc(db, 'users', selected.id),
-      { name: session.name, department: session.department, role, lastLogin: serverTimestamp() },
-      { merge: true },
-    );
+    await recordLogin(session);
     localStorage.setItem(SESSION_KEY, JSON.stringify(session));
     setUser(session);
   }
