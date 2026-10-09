@@ -14,6 +14,7 @@ export default function GlassSelect({ value, onChange, options, placeholder = 'S
   const selected = options.find((o) => o.value === value);
 
   function openList() {
+    revealActive.current = true;
     setActive(Math.max(0, options.findIndex((o) => o.value === value)));
     setOpen(true);
   }
@@ -35,12 +36,16 @@ export default function GlassSelect({ value, onChange, options, placeholder = 'S
       const maxHeight = Math.min(320, up ? above : below);
       setPos({ left: r.left, width: r.width, maxHeight, ...(up ? { bottom: window.innerHeight - r.top + 6 } : { top: r.bottom + 6 }) });
     };
+    // El scroll dentro de la propia lista no la recoloca (si no, en el celular "se traba").
+    const onScroll = (e) => {
+      if (!listRef.current?.contains(e.target)) place();
+    };
     place();
     window.addEventListener('resize', place);
-    window.addEventListener('scroll', place, true);
+    window.addEventListener('scroll', onScroll, true);
     return () => {
       window.removeEventListener('resize', place);
-      window.removeEventListener('scroll', place, true);
+      window.removeEventListener('scroll', onScroll, true);
     };
   }, [open]);
 
@@ -57,8 +62,19 @@ export default function GlassSelect({ value, onChange, options, placeholder = 'S
     };
   }, [open]);
 
+  // Muestra la opción activa moviendo solo la lista (nunca la página). Se usa al abrir y con flechas del teclado,
+  // no al pasar el dedo o el mouse, para no pelear con el scroll del usuario.
+  const revealActive = useRef(false);
   useEffect(() => {
-    if (open && active >= 0) listRef.current?.querySelector(`[data-index="${active}"]`)?.scrollIntoView({ block: 'nearest' });
+    if (!open || !revealActive.current || active < 0) return;
+    const list = listRef.current;
+    const item = list?.querySelector(`[data-index="${active}"]`);
+    if (!item) return;
+    if (item.offsetTop < list.scrollTop) list.scrollTop = item.offsetTop - 6;
+    else if (item.offsetTop + item.offsetHeight > list.scrollTop + list.clientHeight) {
+      list.scrollTop = item.offsetTop + item.offsetHeight - list.clientHeight + 6;
+    }
+    revealActive.current = false;
   }, [open, active, pos]);
 
   function onKeyDown(e) {
@@ -71,9 +87,11 @@ export default function GlassSelect({ value, onChange, options, placeholder = 'S
     }
     if (e.key === 'ArrowDown') {
       e.preventDefault();
+      revealActive.current = true;
       setActive((i) => Math.min(options.length - 1, i + 1));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
+      revealActive.current = true;
       setActive((i) => Math.max(0, i - 1));
     } else if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();

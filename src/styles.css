@@ -178,6 +178,9 @@ input:focus, select:focus, textarea:focus {
   padding: 6px;
   list-style: none;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.28);
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03)), rgba(38, 52, 70, 0.88);
